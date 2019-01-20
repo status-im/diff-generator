@@ -6,10 +6,9 @@ const JsonError = require('koa-json-error')
 const JoiRouter = require('koa-joi-router')
 const BodyParser = require('koa-bodyparser')
 
-const Url = require('./Url')
 const Schema = require('./schema')
 
-const App = (domain, diff) => {
+const App = (domain, db, diff) => {
   const app = new Koa()
   const router = new JoiRouter()
 
@@ -27,19 +26,26 @@ const App = (domain, diff) => {
     ctx.body = 'OK'
   })
 
-  //router.route({
-  //  method: 'post',
-  //  path: '/commit/:id',
-  //  validate: {
-  //    type: 'json',
-  //    body: Schema.commit,
-  //  },
-  //  handler: async (ctx) => {
-  //    await ghc.update(ctx.params.pr)
-  //    ctx.status = 201
-  //    ctx.body = {status:'ok'}
-  //  }
-  //})
+  router.route({
+    method: 'post',
+    path: '/commit/:sha',
+    validate: {
+      type: 'json',
+      body: Schema.commit,
+    },
+    handler: async (ctx) => {
+      await db.addCommit(ctx.params.sha, ctx.request.body)
+      ctx.status = 201
+      ctx.body = {
+        status: 'ok',
+        url: [
+          domain, 'commit',
+          ctx.params.sha,
+          ctx.request.body.build_id
+        ].join('/')
+      }
+    }
+  })
   
   router.route({
     method: 'post',
@@ -49,15 +55,11 @@ const App = (domain, diff) => {
       body: Schema.manual,
     },
     handler: async (ctx) => {
-      const first  = new Url(ctx.request.body.files[0])
-      const second = new Url(ctx.request.body.files[1])
-      await first.save()
-      await second.save()
-      diff.on('xyz', first.path, second.path)
+      diff.on('xyz', ctx.request.body.files)
       ctx.status = 201
       ctx.body = {
         status:'ok',
-        url: `${domain}/manual/${first.name}/vs/${second.name}`
+        url: `${domain}/manual/${'y'}/vs/${'x'}`
       }
     }
   })

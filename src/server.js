@@ -1,6 +1,7 @@
 const log = require('loglevel')
 const Logger = require('koa-logger')
 
+const DB = require('./db')
 const App = require('./app')
 const Diff = require('./diff')
 
@@ -15,8 +16,9 @@ const DIFF_OUTPUT_PATH = process.env.DIFF_OUTPUT_PATH || '/tmp/diffs'
 /* set the logging level (TRACE, DEBUG, INFO, WARN, ERROR, SILENT) */
 log.setDefaultLevel(log.levels[LOG_LEVEL])
 
+const db = new DB(DB_PATH, DB_SAVE_INTERVAL)
 const diff = new Diff(DIFF_OUTPUT_PATH)
-const app = App(PUBLIC_DOMAIN, diff)
+const app = App(PUBLIC_DOMAIN, db, diff)
 
 app.use(Logger())
 
