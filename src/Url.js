@@ -11,8 +11,8 @@ class Url {
   }
 
   async save() {
-    const filename = this.url.split('/').pop()
-    this.path = path.join(OUTPUT_PATH, filename)
+    this.name = this.url.split('/').pop()
+    this.path = path.join(OUTPUT_PATH, this.name)
     const resp = await Axios.request(this.url)
     fs.writeFileSync(this.path, resp.data);
   }

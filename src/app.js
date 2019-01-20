@@ -9,7 +9,7 @@ const BodyParser = require('koa-bodyparser')
 const Url = require('./Url')
 const Schema = require('./schema')
 
-const App = (diff) => {
+const App = (domain, diff) => {
   const app = new Koa()
   const router = new JoiRouter()
 
@@ -55,7 +55,10 @@ const App = (diff) => {
       await second.save()
       diff.on('xyz', first.path, second.path)
       ctx.status = 201
-      ctx.body = {status:'ok'}
+      ctx.body = {
+        status:'ok',
+        url: `${domain}/manual/${first.name}/vs/${second.name}`
+      }
     }
   })
   

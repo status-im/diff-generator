@@ -14,7 +14,6 @@ class Diff {
 
   async on(name, first, second, exclude = '') {
     const args = [
-      '--debug',
       '--no-progress',
       `--exclude="${exclude}"`,
       `--jquery="${JQUERY_URL}"`,
@@ -29,7 +28,7 @@ class Diff {
       const proc = await exec(command)
     } catch(ex) {
       log.error(ex.message)
-      return
+      return null
     }
     log.info(`Success: ${proc}`)
   }
