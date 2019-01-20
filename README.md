@@ -6,7 +6,7 @@ This is a minimal REST API intended for use with a Continuous Integration system
 
 It exposes just 1 call:
 
-* `POST /artifacts` - Add a new build result and update the PR comment.
+* `POST /builds` - Add a new build result and update the PR comment.
 * `POST /manual` - Add a new build result and update the PR comment.
 
 By default it listens on `localhost:8080`.
@@ -16,17 +16,39 @@ By default it listens on `localhost:8080`.
 ```bash
 $ cat << EOF
 {
-    "e878afc": {
-        "APK": "https://status-im.ams3.digitaloceanspaces.com/StatusIm-190120-143716-e878af-nightly.apk",
-        "APP": "https://status-im.ams3.digitaloceanspaces.com/StatusIm-190120-134447-e878af-nightly.AppImage",
-        "WIN": "https://status-im.ams3.digitaloceanspaces.com/StatusIm-190120-142222-e878af-nightly.exe"
-    }
+    "APK": "https://status-im.ams3.digitaloceanspaces.com/StatusIm-190120-143716-e878af-nightly.apk",
+    "APP": "https://status-im.ams3.digitaloceanspaces.com/StatusIm-190120-134447-e878af-nightly.AppImage",
+    "WIN": "https://status-im.ams3.digitaloceanspaces.com/StatusIm-190120-142222-e878af-nightly.exe"
 }
 EOF >> /tmp/body/json
 
-$ curl -s -XPOST http://localhost:8000/builds/7123 -d@/tmp/body.json -H 'Content-Type: application/json'
-{ "status": "ok" }
+$ curl -s -XPOST http://localhost:8000/commit/e878afc -d@/tmp/body.json -H 'Content-Type: application/json'
+{
+    "status": "ok",
+    "url": "http://localhost:8000/commit/e878afc
+}
 ```
+
+```bash
+$ cat << EOF
+{
+    "options": [
+        "--exclude='smali_classes*'"
+    ],
+    "files": [
+        "https://status-im.ams3.digitaloceanspaces.com/StatusIm-190112-031332-40aff1-nightly.apk",
+        "https://status-im.ams3.digitaloceanspaces.com/StatusIm-190120-142222-e878af-nightly.exe"
+    ]
+}
+EOF >> /tmp/body/json
+
+$ curl -s -XPOST http://localhost:8000/manual -d@/tmp/body.json -H 'Content-Type: application/json'
+{
+    "status": "ok",
+    "url": "http://localhost:8000/manual/StatusIm-190112-031332-40aff1-nightly.apk/vs/StatusIm-190120-142222-e878af-nightly.exe"
+}
+```
+
 
 # Configuration
 
