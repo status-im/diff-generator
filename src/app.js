@@ -34,7 +34,8 @@ const App = (domain, db, diff) => {
       body: Schema.commit,
     },
     handler: async (ctx) => {
-      await db.addCommit(ctx.params.sha, ctx.request.body)
+      let id = await db.addCommit(ctx.params.sha, ctx.request.body)
+      log.info(id)
       ctx.status = 201
       ctx.body = {
         status: 'ok',
@@ -47,6 +48,14 @@ const App = (domain, db, diff) => {
     }
   })
   
+  router.get('/commits', async (ctx) => {
+    const commits = await db.getCommits()
+    ctx.body = {
+      count: commits.length,
+      data: commits,
+    }
+  })
+
   router.route({
     method: 'post',
     path: '/manual',

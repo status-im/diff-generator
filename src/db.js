@@ -1,6 +1,7 @@
 const log = require('loglevel')
 const Joi = require('joi')
 const Loki = require('lokijs')
+const merge = require('deepmerge')
 
 class DB {
   constructor(path, interval) {
@@ -32,13 +33,19 @@ class DB {
   }
 
   async addCommit (sha, obj) {
-    log.info(`Storing commit ${sha}: ${obj}`)
-    return await this.commits.insert({sha, ...obj})
+    let rval = await this.getCommit(sha)
+    if (rval !== null) {
+      log.info(`Updating commit: ${sha}`)
+      rval = await this.commits.update(merge(rval, obj))
+      return rval.$loki
+    }
+    log.info(`Storing commit: ${sha}`)
+    rval = await this.commits.insert({sha, ...obj})
+    return rval.$loki
   }
 
   async getCommit (sha) {
-    const rval = await this.commits.findOne({sha: sha})
-    return rval ? rval.comment_id : null
+    return await this.commits.findOne({sha: sha})
   }
 
   async getCommits () {
@@ -48,6 +55,7 @@ class DB {
       const {$loki, meta, ...comment} = c
       return comment
     })
+    
   }
 }
 
