@@ -18,10 +18,6 @@ class DB {
     if (!this.commits) {
       this.commits = this.db.addCollection('commits')
     }
-    this.comments = this.db.getCollection('comments')
-    if (!this.comments) {
-      this.comments = this.db.addCollection('comments')
-    }
     /* just to make sure we save on close */
     this.db.on('close', () => this.save())
   }
@@ -32,16 +28,25 @@ class DB {
     })
   }
 
-  async addCommit (sha, obj) {
-    let rval = await this.getCommit(sha)
-    if (rval !== null) {
-      log.info(`Updating commit: ${sha}`)
-      rval = await this.commits.update(merge(rval, obj))
-      return rval.$loki
-    }
+  async updateCommit (sha, obj) {
+    log.info(`Updating commit: ${sha}`)
+    rval = await this.commits.update(obj)
+    return rval.$loki
+  }
+
+  async insertCommit (sha, obj) {
     log.info(`Storing commit: ${sha}`)
     rval = await this.commits.insert({sha, ...obj})
     return rval.$loki
+  }
+
+  async addCommit (sha, obj) {
+    let rval = await this.getCommit(sha)
+    if (rval !== null) {
+      return await this.updateCommit(sha, merge(rval, obj))
+    } else {
+      return await this.insertCommit(sha, obj)
+    }
   }
 
   async getCommit (sha) {
