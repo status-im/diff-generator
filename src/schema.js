@@ -12,4 +12,4 @@ const manual = Joi.object().keys({
 })
 
 
-module.exports = { schema, manual }
+module.exports = { commit, manual }
