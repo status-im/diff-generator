@@ -88,8 +88,10 @@ const App = (domain, db, diff) => {
     path: '/manual',
     validate: { type: 'json', body: Schema.manual },
     handler: async (ctx) => {
+      const body = ctx.request.body
       const path = `manual/${'y'}/vs/${'x'}`
-      diff.on(path, ctx.request.body.files)
+      db.addDiff(body)
+      diff.on(path, [body.left, body.right])
       ctx.status = 201
       ctx.body = { status:'ok', url: `${domain}/${path}` }
     },
@@ -97,6 +99,11 @@ const App = (domain, db, diff) => {
   
   router.get('/manual/:x/vs/:y', async (ctx) => {
     const diffs = await db.getDiffs({filename: ctx.params.x})
+    ctx.body = { count: diffs.length, data: diffs }
+  })
+
+  router.get('/diffs', async (ctx) => {
+    const diffs = await db.getDiffs()
     ctx.body = { count: diffs.length, data: diffs }
   })
 
