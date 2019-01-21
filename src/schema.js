@@ -1,11 +1,11 @@
 const Joi = require('joi')
 
-const builds = Joi.object().pattern(/^/, Joi.string().uri().allow(null))
+const artifacts = Joi.object().pattern(/^/, Joi.string().uri().allow(null))
  
-const commit = Joi.object().keys({
+const build = Joi.object().keys({
   build_id: Joi.alternatives().try(Joi.number().positive(), Joi.string()).required(),
   build_url: Joi.string().uri().required(),
-  artifacts: builds,
+  artifacts: artifacts,
 })
 
 const manual = Joi.object().keys({
@@ -14,4 +14,4 @@ const manual = Joi.object().keys({
 })
 
 
-module.exports = { builds, commit, manual }
+module.exports = { artifacts, build, manual }

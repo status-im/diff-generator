@@ -28,14 +28,12 @@ const App = (domain, db, diff) => {
 
   router.route({
     method: 'post',
-    path: '/commit/:sha',
-    validate: {
-      type: 'json',
-      body: Schema.commit,
-    },
+    path: '/commit/:sha/builds',
+    validate: { type: 'json', body: Schema.build },
     handler: async (ctx) => {
-      let id = await db.addCommit(ctx.params.sha, ctx.request.body)
-      log.info(id)
+      let id = await db.addBuild(
+        { commit: ctx.params.sha, ...ctx.request.body }
+      )
       ctx.status = 201
       ctx.body = {
         status: 'ok',
@@ -45,11 +43,19 @@ const App = (domain, db, diff) => {
           ctx.request.body.build_id
         ].join('/')
       }
-    }
+    },
   })
   
-  router.get('/commits', async (ctx) => {
-    const commits = await db.getCommits()
+  router.get('/builds', async (ctx) => {
+    const commits = await db.getBuilds()
+    ctx.body = {
+      count: commits.length,
+      data: commits,
+    }
+  })
+
+  router.get('/commit/:sha/builds', async (ctx) => {
+    const commits = await db.getBuilds({commit: ctx.params.sha})
     ctx.body = {
       count: commits.length,
       data: commits,
@@ -59,10 +65,7 @@ const App = (domain, db, diff) => {
   router.route({
     method: 'post',
     path: '/manual',
-    validate: {
-      type: 'json',
-      body: Schema.manual,
-    },
+    validate: { type: 'json', body: Schema.manual },
     handler: async (ctx) => {
       diff.on('xyz', ctx.request.body.files)
       ctx.status = 201
@@ -70,7 +73,7 @@ const App = (domain, db, diff) => {
         status:'ok',
         url: `${domain}/manual/${'y'}/vs/${'x'}`
       }
-    }
+    },
   })
   
   return app

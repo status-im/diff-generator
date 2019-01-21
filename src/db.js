@@ -14,9 +14,9 @@ class DB {
   }
 
   initDB() {
-    this.commits = this.db.getCollection('commits')
-    if (!this.commits) {
-      this.commits = this.db.addCollection('commits')
+    this.builds = this.db.getCollection('builds')
+    if (!this.builds) {
+      this.builds = this.db.addCollection('builds')
     }
     /* just to make sure we save on close */
     this.db.on('close', () => this.save())
@@ -28,39 +28,43 @@ class DB {
     })
   }
 
-  async updateCommit (sha, obj) {
-    log.info(`Updating commit: ${sha}`)
-    rval = await this.commits.update(obj)
+  async updateBuild (obj) {
+    log.info(`Updating commit: ${obj.commit}`)
+    let rval = await this.builds.update(obj)
     return rval.$loki
   }
 
-  async insertCommit (sha, obj) {
-    log.info(`Storing commit: ${sha}`)
-    rval = await this.commits.insert({sha, ...obj})
+  async insertBuild (obj) {
+    log.info(`Storing commit: ${obj.commit}`)
+    let rval = await this.builds.insert(obj)
     return rval.$loki
   }
 
-  async addCommit (sha, obj) {
-    let rval = await this.getCommit(sha)
+  async addBuild (obj) {
+    console.dir(obj)
+    let rval = await this.getBuild(obj.commit)
     if (rval !== null) {
-      return await this.updateCommit(sha, merge(rval, obj))
+      return await this.updateBuild(merge(rval, obj))
     } else {
-      return await this.insertCommit(sha, obj)
+      return await this.insertBuild(obj)
     }
   }
 
-  async getCommit (sha) {
-    return await this.commits.findOne({sha: sha})
+  async getBuild (commit) {
+    return await this.builds.findOne({commit: commit})
   }
 
-  async getCommits () {
-    const commits = await this.commits.chain().simplesort('$loki').data()
+  async getBuilds (query) {
+    let req = await this.builds.chain()
+    if (query) {
+      req = req.find(query)
+    }
+    const builds = await req.simplesort('$loki').data()
     /* strip the loki attributes */
-    return commits.map((c) => {
+    return builds.map((c) => {
       const {$loki, meta, ...comment} = c
       return comment
     })
-    
   }
 }
 
