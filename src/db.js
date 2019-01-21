@@ -20,12 +20,12 @@ class DB {
       build_url: SQ.STRING,
       platform: SQ.STRING,
       artifact_url: SQ.STRING,
-    })
+    }, {underscored: true})
     this.Diff = this.db.define('diffs', {
       id: { type: SQ.INTEGER, primaryKey: true, autoIncrement: true },
       artifact_a: { type: SQ.INTEGER, references: { model: this.Build, key: 'id' } },
       artifact_b: { type: SQ.INTEGER, references: { model: this.Build, key: 'id' } },
-    })
+    }, {underscored: true})
     this.Build.sync()
     this.Diff.sync()
   }
@@ -37,7 +37,7 @@ class DB {
       return await rval.update(obj)
     } else {
       log.info(`Storing commit: ${obj.commit}`)
-      return await this.insertBuild(obj)
+      return await this.Build.build(obj).save()
     }
   }
 
