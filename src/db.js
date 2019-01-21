@@ -1,73 +1,56 @@
 const log = require('loglevel')
-const Joi = require('joi')
-const Loki = require('lokijs')
-const merge = require('deepmerge')
+const SQ = require('sequelize')
 
 class DB {
   constructor(path, interval) {
-    this.db = new Loki(path, {
-      autoload: true,
-      autosave: true,
-      autosaveInterval: interval,
-      autoloadCallback: this.initDB.bind(this),
+    this.db = new SQ({
+      dialect: 'sqlite',
+      storage: path,
+      operatorsAliases: false,
     })
+    this.initDB()
   }
 
-  initDB() {
-    this.builds = this.db.getCollection('builds')
-    if (!this.builds) {
-      this.builds = this.db.addCollection('builds')
-    }
-    /* just to make sure we save on close */
-    this.db.on('close', () => this.save())
-  }
-
-  async save () {
-    this.db.saveDatabase((err) => {
-      if (err) { console.error('error saving', err) }
+  initDB () {
+    /* define the schema for the database */
+    this.Build = this.db.define('builds', {
+      id: { type: SQ.INTEGER, primaryKey: true, autoIncrement: true },
+      commit: SQ.STRING,
+      build_id: SQ.STRING,
+      build_url: SQ.STRING,
+      platform: SQ.STRING,
+      artifact_url: SQ.STRING,
     })
-  }
-
-  async updateBuild (obj) {
-    log.info(`Updating commit: ${obj.commit}`)
-    let rval = await this.builds.update(obj)
-    return rval.$loki
-  }
-
-  async insertBuild (obj) {
-    log.info(`Storing commit: ${obj.commit}`)
-    let rval = await this.builds.insert(obj)
-    return rval.$loki
+    this.Diff = this.db.define('diffs', {
+      id: { type: SQ.INTEGER, primaryKey: true, autoIncrement: true },
+      artifact_a: { type: SQ.INTEGER, references: { model: this.Build, key: 'id' } },
+      artifact_b: { type: SQ.INTEGER, references: { model: this.Build, key: 'id' } },
+    })
+    this.Build.sync()
+    this.Diff.sync()
   }
 
   async addBuild (obj) {
     let rval = await this.getBuild(obj)
     if (rval !== null) {
-      return await this.updateBuild(merge(rval, obj))
+      log.info(`Updating commit: ${obj.commit}`)
+      return await rval.update(obj)
     } else {
+      log.info(`Storing commit: ${obj.commit}`)
       return await this.insertBuild(obj)
     }
   }
 
   async getBuild (obj) {
-    return await this.builds.findOne({
+    return await this.Build.findOne({ where: {
       commit: obj.commit,
       build_id: obj.build_id,
       platform: obj.platform,
-    })
+    }})
   }
 
-  async getBuilds (query) {
-    let req = await this.builds.chain()
-    if (query) {
-      req = req.find(query)
-    }
-    const builds = await req.simplesort('$loki').data()
-    /* strip the loki attributes */
-    return builds.map((c) => {
-      const {$loki, meta, ...comment} = c
-      return comment
-    })
+  async getBuilds (where = {}) {
+    return await this.Build.findAll({ where })
   }
 }
 

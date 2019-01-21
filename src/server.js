@@ -9,7 +9,7 @@ const Diff = require('./diff')
 const LOG_LEVEL        = process.env.LOG_LEVEL        || 'INFO'
 const LISTEN_PORT      = process.env.LISTEN_PORT      || 8000
 const PUBLIC_DOMAIN    = process.env.PUBLIC_DOMAIN    || `http://localhost:${LISTEN_PORT}`
-const DB_PATH          = process.env.DB_PATH          || '/tmp/diffgen-db.json'
+const DB_PATH          = process.env.DB_PATH          || '/tmp/diffgen.db'
 const DB_SAVE_INTERVAL = process.env.DB_SAVE_INTERVAL || 5000
 const DIFF_OUTPUT_PATH = process.env.DIFF_OUTPUT_PATH || '/tmp/diffs'
 
