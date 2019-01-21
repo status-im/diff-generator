@@ -41,8 +41,7 @@ class DB {
   }
 
   async addBuild (obj) {
-    console.dir(obj)
-    let rval = await this.getBuild(obj.commit)
+    let rval = await this.getBuild(obj)
     if (rval !== null) {
       return await this.updateBuild(merge(rval, obj))
     } else {
@@ -50,8 +49,12 @@ class DB {
     }
   }
 
-  async getBuild (commit) {
-    return await this.builds.findOne({commit: commit})
+  async getBuild (obj) {
+    return await this.builds.findOne({
+      commit: obj.commit,
+      build_id: obj.build_id,
+      platform: obj.platform,
+    })
   }
 
   async getBuilds (query) {
