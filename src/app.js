@@ -36,30 +36,7 @@ const App = (domain, db, diff) => {
     validate: { type: 'json', body: Schema.build },
     handler: async (ctx) => {
       const id = db.addBuild(ctx.request.body)
-      const builds = db.findDiffableBuilds()
-      ctx.status = 201
-      ctx.body = {
-        status: 'ok',
-        url: `${domain}/commit/${ctx.params.sha}/${ctx.request.body.build_id}`,
-      }
-    },
-  })
-
-  router.route({
-    method: 'post',
-    path: '/commit/:sha/builds',
-    validate: { type: 'json', body: Schema.builds },
-    handler: async (ctx) => {
-      const body = ctx.request.body
-      Object.keys(body.artifacts).map(async platform =>
-        db.addBuild({
-          commit: ctx.params.sha,
-          platform: platform,
-          build_id: body.build_id,
-          build_url: body.build_url,
-          artifact_url: body.artifacts[platform],
-        })
-      )
+      //const builds = db.findDiffableBuilds()
       ctx.status = 201
       ctx.body = {
         status: 'ok',
@@ -106,15 +83,6 @@ const App = (domain, db, diff) => {
   router.get('/diffs', async (ctx) => {
     const diffs = db.getDiffs()
     ctx.body = { count: diffs.length, data: diffs }
-  })
-
-  router.get('/todiff', async (ctx) => {
-    ctx.body = { count: diffs.length, data: diffs }
-  })
-
-  router.get('/artifacts/:sha', async (ctx) => {
-    //const artifacts = db.findDiffableBuilds(ctx.params.sha)
-    ctx.body = { count: artifacts.length, data: artifacts }
   })
 
   return app
