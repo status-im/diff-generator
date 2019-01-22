@@ -6,10 +6,9 @@ const artifacts = Joi.object().pattern(/^/, artifact)
  
 const build = Joi.object().keys({
   commit: Joi.string().regex(/^[a-zA-Z0-9]{6,40}$/).required(),
-  build_id: Joi.alternatives().try(Joi.number().positive(), Joi.string()).required(),
-  build_url: Joi.string().uri().required(),
-  platform: Joi.string().valid('ios', 'android', 'linux', 'windows', 'macos'),
-  artifact_url: artifact,
+  name: Joi.string().required(),
+  url: artifact,
+  type: Joi.string().valid('ios', 'android', 'linux', 'windows', 'macos'),
 })
 
 const builds = Joi.object().keys({
@@ -20,8 +19,9 @@ const builds = Joi.object().keys({
 
 const manual = Joi.object().keys({
   options: Joi.array().items(Joi.string()).valid(null),
-  left: Joi.string().uri().required(),
-  right: Joi.string().uri().required(),
+  name: Joi.string().uri().valid(null),
+  east: Joi.string().uri().required(),
+  west: Joi.string().uri().required(),
 })
 
 

@@ -1,5 +1,6 @@
+const fs = require('fs')
 const log = require('loglevel')
-const SQ = require('sequelize')
+const sqlite = require('better-sqlite3')
 
 const urlToArtifact = (url) => ({
   name: url.split('/').pop(),
@@ -9,93 +10,84 @@ const urlToArtifact = (url) => ({
 
 class DB {
   constructor(path, interval) {
-    this.db = new SQ({
-      dialect: 'sqlite',
-      storage: path,
-      operatorsAliases: false,
-    })
+    this.db = sqlite(path)
     this.initDB()
   }
 
   initDB () {
-    /* Build is a success CI job that provides one or multiple artifacts */
-    this.Build = this.db.define('builds', {
-      id:     { type: SQ.INTEGER, primaryKey: true, autoIncrement: true },
-      commit: { type: SQ.STRING, required: true },
-      name:   { type: SQ.STRING, required: true },
-      url:    { type: SQ.STRING, required: true },
-    }, {underscored: true})
-    /* Artifact is a file, one of 2 used in a Diff */
-    this.Artifact = this.db.define('artifacts', {
-      id:     { type: SQ.INTEGER, primaryKey: true, autoIncrement: true },
-      url:    { type: SQ.STRING,  required: true },
-      name:   { type: SQ.STRING,  required: true },
-      type:   { type: SQ.STRING },
-    }, {underscored: true})
-    this.Build.hasMany(this.Artifact, {as: 'Artifacts'})
-    /* for many-to-many relationships */
-    this.ArtifactDiffs = this.db.define('artifact_diffs')
-    /* Diff is a generated report on difference between two artifacts */
-    this.Diff = this.db.define('diffs', {
-      id:     { type: SQ.INTEGER, primaryKey: true, autoIncrement: true },
-      options:{ type: SQ.STRING,  required: false },
-    }, {underscored: true})
-    /* TODO set limit of 2 for this association */
-    this.Diff.belongsToMany(this.Artifact, {through: this.ArtifactDiffs});
-    this.Artifact.belongsToMany(this.Diff, {through: this.ArtifactDiffs});
-    /* save changes */
-    this.Build.sync()
-    this.Artifact.sync()
-    this.Diff.sync()
-    this.ArtifactDiffs.sync()
+    /* make sure the database has correct schema */
+    const schema = fs.readFileSync(`${__dirname}/schema.sql`, 'utf8')
+    this.db.exec(schema)
+    /* prepare helper methods */
+    this.db.function('filename', (url) => url.split('/').pop())
+    /* prepare statements to run */
+    this._insertBuild = this.db.prepare(`
+      INSERT INTO builds (sha, name, url, type, filename, created)
+      VALUES (@commit, @name, @url, @type, filename(@url), CURRENT_TIMESTAMP)
+    `)
+    this._updateBuild = this.db.prepare(`
+      UPDATE builds
+      SET sha = @commit, name = @name, url = @url
+      WHERE id == @id
+    `)
+    this._getBuilds = this.db.prepare(`
+      SELECT * FROM builds
+    `)
+    this._getBuild = this.db.prepare(`
+      SELECT * FROM builds
+      WHERE sha = @commit AND name = @name AND type = @type
+    `)
+    /* diffs */
+    this._insertDiffs = this.db.prepare(`
+      INSERT INTO diffs (options, created, east, west)
+      VALUES (@options, CURRENT_TIMESTAMP, @east, @west)
+    `)
+    this._getDiffs = this.db.prepare(`
+      SELECT * FROM diffs
+    `)
+    this._getBuildsWithoutDiffs = this.db.prepare(`
+      SELECT * FROM builds
+      LEFT JOIN diffs ON
+        (diffs.east = builds.id) OR
+        (diffs.west = builds.id)
+      WHERE east IS NULL AND west IS NULL
+    `)
   }
 
-  async addBuild (obj) {
-    let rval = await this.getBuild(obj)
-    if (rval !== null) {
-      log.info(`Updating commit: ${obj.commit}`)
-      return await rval.update(obj)
-    } else {
-      log.info(`Storing commit: ${obj.commit}`)
-      return await this.Build.build(obj).save()
-    }
+  addBuild (obj) {
+    log.info(`Storing build: ${obj.name}`)
+    return this._insertBuild.run(obj)
   }
 
-  async getBuild (obj) {
-    return await this.Build.findOne({ where: {
-      commit: obj.commit,
-      build_id: obj.build_id,
-      platform: obj.platform,
-    }})
+  getBuild (obj) {
+    return this._getBuild.get(obj)
   }
 
-  async getBuilds (where = {}) {
-    return await this.Build.findAll({ where })
+  getBuilds (where = {}) {
+    return this._getBuilds.all()
   }
 
-  async addBuild (obj) {
-    let rval = await this.getBuild(obj)
-    if (rval !== null) {
-      log.info(`Updating commit: ${obj.commit}`)
-      return await rval.update(obj)
-    } else {
-      log.info(`Storing commit: ${obj.commit}`)
-      return await this.Build.build(obj).save()
-    }
+  addBuildFromUrl (url) {
+    return this.addBuild({commit: null, name: obj.name, url: obj.left, type: 'manual'})
   }
 
-  async addDiff (obj) {
+  addDiff (obj) {
     log.info(`Creating diff`)
-    const left = await this.Artifact.build(urlToArtifact(obj.left)).save()
-    const right = await this.Artifact.build(urlToArtifact(obj.right)).save()
-    const diff = await this.Diff.build({options: obj.options}).save()
-    await diff.addArtifact(left)
-    await diff.addArtifact(right)
-    return diff.save()
+    /* if given sides of diff are strings they are URLs and we need to add new builds */
+    typeof obj.east === 'string' && this.addBuildFromUrl(obj.left)
+    typeof obj.west === 'string' && this.addBuildFromUrl(obj.right)
+    return this._insertDiff.run(obj)
   }
 
-  async getDiffs () {
-    return this.Diff.findAll({include: [this.Artifact]})
+  getDiffs () {
+    return this._getDiffs.all()
+  }
+
+  /**
+   * Check for available Artifacts with the same commit that can be diffed.
+   **/
+  findDiffableBuilds (commit) {
+    return this._getBuildsWithoutDiffs.all()
   }
 }
 
