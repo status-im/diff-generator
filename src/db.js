@@ -37,10 +37,19 @@ class DB {
       SELECT * FROM builds
       WHERE sha = @commit AND name = @name AND type = @type
     `)
+    this._getBuildById = this.db.prepare(`
+      SELECT * FROM builds
+      WHERE id = ?
+    `)
     /* diffs */
-    this._insertDiffs = this.db.prepare(`
+    this._insertDiff = this.db.prepare(`
       INSERT INTO diffs (options, created, east, west)
       VALUES (@options, CURRENT_TIMESTAMP, @east, @west)
+    `)
+    this._updateDiff = this.db.prepare(`
+      UPDATE diffs
+      SET status = @status
+      WHERE id == @id
     `)
     this._getDiffs = this.db.prepare(`
       SELECT * FROM diffs
@@ -54,21 +63,42 @@ class DB {
     `)
   }
 
-  addBuild (obj) {
+  insertBuild (obj) {
     log.info(`Storing build: ${obj.name}`)
-    return this._insertBuild.run(obj)
+    return this._insertBuild.run(obj).lastInsertRowid
   }
 
   getBuild (obj) {
     return this._getBuild.get(obj)
   }
 
+  updateBuild (obj) {
+    log.info(`Updating build: ${obj.name}`)
+    return this._insertBuild.run(obj)
+  }
+
+  getBuildById (id) {
+    return this._getBuildById.get(id)
+  }
+
   getBuilds (where = {}) {
     return this._getBuilds.all()
   }
 
+  addBuild (obj) {
+    const build = this.getBuild(obj)
+    if (!build) {
+      return this.insertBuild(obj)
+    } else {
+      return this.updateBuild(obj)
+    }
+  }
+
   addBuildFromUrl (url) {
-    return this.addBuild({commit: null, name: obj.name, url: obj.left, type: 'manual'})
+    return this.insertBuild({
+      name: 'manual',
+      type: 'manual', url: url
+    }).lastInsertRowid
   }
 
   addDiff (obj) {
@@ -76,7 +106,11 @@ class DB {
     /* if given sides of diff are strings they are URLs and we need to add new builds */
     typeof obj.east === 'string' && this.addBuildFromUrl(obj.left)
     typeof obj.west === 'string' && this.addBuildFromUrl(obj.right)
-    return this._insertDiff.run(obj)
+    return this._insertDiff.run({options: 'DEFAULT', ...obj}).lastInsertRowid
+  }
+
+  updateDiff (id, status) {
+    return this._updateDiff.run({id, status}).lastInsertRowid
   }
 
   getDiffs () {

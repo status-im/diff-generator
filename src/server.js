@@ -17,7 +17,7 @@ const DIFF_OUTPUT_PATH = process.env.DIFF_OUTPUT_PATH || '/tmp/diffs'
 log.setDefaultLevel(log.levels[LOG_LEVEL])
 
 const db = new DB(DB_PATH, DB_SAVE_INTERVAL)
-const diff = new Diff(DIFF_OUTPUT_PATH)
+const diff = new Diff(db, DIFF_OUTPUT_PATH)
 const app = App(PUBLIC_DOMAIN, db, diff)
 
 app.use(Logger())
