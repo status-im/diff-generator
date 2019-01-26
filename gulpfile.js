@@ -15,15 +15,15 @@ gulp.task('devel', () => {
     .on('restart', () => { console.log('>> node restart') })
 })
 
-//gulp.task('test', () =>
-//  gulp.src('test/**/*.js', {read: false})
-//    .pipe(mocha({sort: true, reporter: 'list'}))
-//)
-//
-//gulp.task('testw', () =>
-//  gulp.src('test/**/*.js', {read: false})
-//    .pipe(mocha({sort: true, reporter: 'list', watch: true}))
-//)
+gulp.task('test', () =>
+  gulp.src('test/**/*.js', {read: false})
+    .pipe(mocha({sort: true, reporter: 'list'}))
+)
+
+gulp.task('testw', () =>
+  gulp.src('test/**/*.js', {read: false})
+    .pipe(mocha({sort: true, reporter: 'list', watch: true}))
+)
 
 gulp.task('build', [])
 

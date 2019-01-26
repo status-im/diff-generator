@@ -9,7 +9,7 @@ const urlToArtifact = (url) => ({
 })
 
 class DB {
-  constructor(path, interval) {
+  constructor(path) {
     this.db = sqlite(path)
     this.initDB()
   }
@@ -22,24 +22,26 @@ class DB {
     this.db.function('filename', (url) => url.split('/').pop())
     /* prepare statements to run */
     this._insertBuild = this.db.prepare(`
-      INSERT INTO builds (sha, name, url, type, filename, created)
+      INSERT INTO builds (\`commit\`, name, url, type, filename, created)
       VALUES (@commit, @name, @url, @type, filename(@url), CURRENT_TIMESTAMP)
     `)
     this._updateBuild = this.db.prepare(`
       UPDATE builds
-      SET sha = @commit, name = @name, url = @url
-      WHERE id == @id
+         SET \`commit\` = @commit, name = @name, url = @url
+       WHERE id == @id
     `)
     this._getBuilds = this.db.prepare(`
       SELECT * FROM builds
     `)
     this._getBuild = this.db.prepare(`
       SELECT * FROM builds
-      WHERE sha = @commit AND name = @name AND type = @type
+       WHERE \`commit\` = @commit
+         AND name = @name
+         AND type = @type
     `)
     this._getBuildById = this.db.prepare(`
       SELECT * FROM builds
-      WHERE id = ?
+       WHERE id = ?
     `)
     /* diffs */
     this._insertDiff = this.db.prepare(`
@@ -48,18 +50,27 @@ class DB {
     `)
     this._updateDiff = this.db.prepare(`
       UPDATE diffs
-      SET status = @status
-      WHERE id == @id
+         SET status = @status
+       WHERE id == @id
+    `)
+    this._getDiffById = this.db.prepare(`
+      SELECT *
+        FROM diffs
+       WHERE id = ?
     `)
     this._getDiffs = this.db.prepare(`
       SELECT * FROM diffs
     `)
     this._getBuildsWithoutDiffs = this.db.prepare(`
-      SELECT * FROM builds
+      SELECT builds.id AS id, \`commit\`, name, url, type, filename
+        FROM builds
       LEFT JOIN diffs ON
         (diffs.east = builds.id) OR
         (diffs.west = builds.id)
-      WHERE east IS NULL AND west IS NULL
+      WHERE east IS NULL
+        AND west IS NULL
+        AND builds.\`commit\` = ?
+      ORDER BY builds.id DESC
     `)
   }
 
@@ -72,16 +83,20 @@ class DB {
     return this._getBuild.get(obj)
   }
 
+  getBuildById (id) {
+    return this._getBuildById.get(id)
+  }
+
   updateBuild (obj) {
     log.info(`Updating build: ${obj.name}`)
-    return this._insertBuild.run(obj)
+    return this._updateBuild.run(obj).lastInsertRowid
   }
 
   getBuildById (id) {
     return this._getBuildById.get(id)
   }
 
-  getBuilds (where = {}) {
+  getBuilds () {
     return this._getBuilds.all()
   }
 
@@ -96,32 +111,45 @@ class DB {
 
   addBuildFromUrl (url) {
     return this.insertBuild({
+      commit: null,
       name: 'manual',
-      type: 'manual', url: url
-    }).lastInsertRowid
+      type: 'manual',
+      url: url,
+    })
   }
 
   addDiff (obj) {
     log.info(`Creating diff`)
     /* if given sides of diff are strings they are URLs and we need to add new builds */
-    typeof obj.east === 'string' && this.addBuildFromUrl(obj.left)
-    typeof obj.west === 'string' && this.addBuildFromUrl(obj.right)
-    return this._insertDiff.run({options: 'DEFAULT', ...obj}).lastInsertRowid
+    if (typeof obj.east === 'string') { obj.east = this.addBuildFromUrl(obj.east) }
+    if (typeof obj.west === 'string') { obj.west = this.addBuildFromUrl(obj.west) }
+    if (typeof obj.east === 'object') { obj.east = obj.east.id }
+    if (typeof obj.west === 'object') { obj.west = obj.west.id }
+    const rval = this._insertDiff.run({options: 'DEFAULT', ...obj})
+    return this.getDiff(rval.lastInsertRowid)
   }
 
   updateDiff (id, status) {
+    log.info(`Updating diff: ${id} (status: ${status})`)
     return this._updateDiff.run({id, status}).lastInsertRowid
+  }
+
+  getDiff (id) {
+    const diff = this._getDiffById.get(id)
+    return {
+      ...diff,
+      east: this.getBuildById(diff.east),
+      west: this.getBuildById(diff.west),
+    }
   }
 
   getDiffs () {
     return this._getDiffs.all()
   }
 
-  /**
-   * Check for available Artifacts with the same commit that can be diffed.
-   **/
+  /* Check for available Artifacts with the same commit that can be diffed. */
   findDiffableBuilds (commit) {
-    return this._getBuildsWithoutDiffs.all()
+    return this._getBuildsWithoutDiffs.all(commit)
   }
 }
 
