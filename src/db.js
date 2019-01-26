@@ -75,7 +75,7 @@ class DB {
   }
 
   insertBuild (obj) {
-    log.info(`Storing build: ${obj.name}`)
+    log.info(`Storing build: ${obj.url} (${obj.name})`)
     return this._insertBuild.run(obj).lastInsertRowid
   }
 

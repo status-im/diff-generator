@@ -35,13 +35,13 @@ const App = (domain, db, diff) => {
     path: '/commit/:sha/build',
     validate: { type: 'json', body: Schema.build },
     handler: async (ctx) => {
-      const id = db.addBuild(ctx.request.body)
-      //const builds = db.findDiffableBuilds()
-      ctx.status = 201
-      ctx.body = {
-        status: 'ok',
-        url: `${domain}/commit/${ctx.params.sha}/${ctx.request.body.build_id}`,
+      db.addBuild(ctx.request.body)
+      const builds = db.findDiffableBuilds(ctx.params.sha)
+      if (builds.length > 1) {
+        diff.builds(builds)
       }
+      ctx.status = 201
+      ctx.body = { status: 'ok' }
     },
   })
 
@@ -67,7 +67,7 @@ const App = (domain, db, diff) => {
     validate: { type: 'json', body: Schema.manual },
     handler: async (ctx) => {
       const body = ctx.request.body
-      const path = await diff.manual(body.left, body.right)
+      const path = await diff.manual(body.east, body.west)
       ctx.status = 201
       ctx.body = { status:'ok', url: `${domain}/${path}` }
     },
@@ -83,8 +83,8 @@ const App = (domain, db, diff) => {
     ctx.body = { count: diffs.length, data: diffs }
   })
 
-  router.get('/diffs', async (ctx) => {
-    const diffs = db.getDiffs()
+  router.get('/todiff', async (ctx) => {
+    const diffs = db.findDiffableBuilds()
     ctx.body = { count: diffs.length, data: diffs }
   })
 
