@@ -1,4 +1,6 @@
-const { Model } = require('objection')
+const { Model, ValidationError } = require('objection')
+
+const VALID_STATES = ['wip', 'same', 'different', 'failure']
 
 class Diff extends Model {
   static get tableName() {
@@ -38,6 +40,9 @@ class Diff extends Model {
 
   $beforeInsert () {
     this.created = new Date().toISOString()
+    if (!this.status in VALID_STATES) {
+      throw new ValidationError(`Status ${this.status} s not valid!`)
+    }
   }
 }
 
