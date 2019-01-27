@@ -11,11 +11,12 @@ class Build extends Model {
       required: ['name', 'url'],
       properties: {
         id:        {type: 'integer'},
-        created:   {type: 'string', minLength: 8,  maxLength: 30},
+        created:   {type: 'string', minLength: 8, maxLength: 30},
         /* Mandatory */
-        name:      {type: 'string', minLength: 5,  maxLength: 50},
-        fileUrl:   {type: 'string', minLength: 10, maxLength: 255},
-        sourceUrl: {type: 'string', minLength: 10, maxLength: 255},
+        name:      {type: 'string', minLength: 5, maxLength: 50},
+        type:      {type: 'string', minLength: 5, maxLength: 50},
+        fileUrl:   {type: 'string', minLength: 8, maxLength: 255},
+        buildUrl:  {type: 'string', minLength: 8, maxLength: 255},
       }
     }
   }

@@ -5,9 +5,10 @@ exports.up = function(knex, Promise) {
       table.integer('buildId').unsigned()
         .references('id').inTable('build')
         .onDelete('SET NULL')
+      table.string('type')
+      table.string('name')
       table.string('fileUrl')
       table.string('buildUrl')
-      table.string('type')
       table.date('created')
     })
     .createTable('diff', table => {
