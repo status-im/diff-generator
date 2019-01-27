@@ -10,23 +10,28 @@ class Build extends Model {
       type: 'object',
       required: ['name', 'url'],
       properties: {
-        id:      {type: 'integer'},
-        url:     {type: 'string', minLength: 10, maxLength: 255},
-        name:    {type: 'string', minLength: 5,  maxLength: 30},
-        created: {type: 'string', minLength: 8,  maxLength: 30},
+        id:        {type: 'integer'},
+        created:   {type: 'string', minLength: 8,  maxLength: 30},
+        /* Mandatory */
+        name:      {type: 'string', minLength: 5,  maxLength: 50},
+        fileUrl:   {type: 'string', minLength: 10, maxLength: 255},
+        sourceUrl: {type: 'string', minLength: 10, maxLength: 255},
       }
     }
   }
 
   static get relationMappings() {
-    const File = require('./File')
+    const Diff = require('./Diff')
     return {
-      builds: {
+      diffs: {
         relation: Model.HasManyRelation,
-        modelClass: File,
+        modelClass: Diff,
         join: {
           from: 'builds.id',
-          to: 'files.buildId',
+          to: [
+            'diffs.eastId',
+            'diffs.westId',
+          ],
         },
       },
     }

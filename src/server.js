@@ -11,13 +11,14 @@ const App = require('./app')
 const Diff = require('./diff')
 const DiffoScope = require('./diffoscope')
 
+const env = process.env
 /* DEFAULTS */
-const LOG_LEVEL     = process.env.LOG_LEVEL     || 'INFO'
-const LISTEN_PORT   = process.env.LISTEN_PORT   || 8000
-const PUBLIC_DOMAIN = process.env.PUBLIC_DOMAIN || `http://localhost:${LISTEN_PORT}`
-const DB_PATH       = process.env.DB_PATH       || '/tmp/diff.db'
-const TEMP_PATH     = process.env.TEMP_PATH     || '/tmp/download'
-const DIFFS_PATH    = process.env.DIFFS_PATH    || '/tmp/diffs'
+const LOG_LEVEL     = env.LOG_LEVEL     || 'INFO'
+const LISTEN_PORT   = env.LISTEN_PORT   || 8000
+const PUBLIC_DOMAIN = env.PUBLIC_DOMAIN || `http://localhost:${LISTEN_PORT}`
+const DB_PATH       = env.DB_PATH       || '/tmp/diff.db'
+const TEMP_PATH     = env.TEMP_PATH     || '/tmp/download'
+const DIFFS_PATH    = env.DIFFS_PATH    || '/tmp/diffs'
 
 /* set the logging level (TRACE, DEBUG, INFO, WARN, ERROR, SILENT) */
 log.setDefaultLevel(log.levels[LOG_LEVEL])
@@ -37,7 +38,6 @@ Model.knex(knex);
 /* Define the GraphQL schema */
 const gQLschema = builder()
   .model(DB.Diff)
-  .model(DB.File)
   .model(DB.Build)
   .build()
 

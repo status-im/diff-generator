@@ -19,21 +19,21 @@ class Diff extends Model {
   }
 
   static get relationMappings() {
-    const File = require('./File')
+    const Build = require('./Build')
     return {
       east: {
         relation: Model.BelongsToOneRelation,
-        modelClass: File,
+        modelClass: Build,
         join: {
-          from: 'files.id',
+          from: 'builds.id',
           to: 'diffs.eastId',
         },
       },
       west: {
         relation: Model.BelongsToOneRelation,
-        modelClass: File,
+        modelClass: Build,
         join: {
-          from: 'files.id',
+          from: 'builds.id',
           to: 'diffs.westId',
         },
       },
