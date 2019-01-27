@@ -9,6 +9,7 @@ const JoiRouter = require('koa-joi-router')
 const BodyParser = require('koa-bodyparser')
 const { Model } = require('objection')
 
+const DB = require('./db')
 const Schema = require('./schema')
 
 const App = (domain, diff, gQLschema) => {
@@ -40,6 +41,16 @@ const App = (domain, diff, gQLschema) => {
   /* Static healthcheck response */
   router.get('/health', async (ctx) => {
     ctx.body = 'OK'
+  })
+
+  router.get('/builds', async (ctx) => {
+    const builds = await DB.Build.query().eager('diffs')
+    ctx.body = { count: builds.length, data: builds }
+  })
+
+  router.get('/diffs', async (ctx) => {
+    const diffs = await DB.Diff.query().eager('builds')
+    ctx.body = { count: diffs.length, data: diffs }
   })
 
   return app
