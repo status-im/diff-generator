@@ -7,6 +7,10 @@ exports.seed = function(knex, Promise) {
           type: 'auto',
           status: 'wip',
         },
+        {
+          type: 'manual',
+          status: 'different',
+        },
       ]);
     });
 };

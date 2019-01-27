@@ -11,6 +11,14 @@ exports.seed = function(knex, Promise) {
           buildId: 3,
           diffId: 1,
         },
+        {
+          buildId: 2,
+          diffId: 2,
+        },
+        {
+          buildId: 4,
+          diffId: 2,
+        },
       ]);
     });
 };
