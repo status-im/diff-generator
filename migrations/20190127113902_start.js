@@ -2,9 +2,6 @@ exports.up = function(knex, Promise) {
   return knex.schema
     .createTable('build', table => {
       table.increments('id').primary()
-      table.integer('buildId').unsigned()
-        .references('id').inTable('build')
-        .onDelete('SET NULL')
       table.string('type')
       table.string('name')
       table.string('fileUrl')
@@ -16,11 +13,14 @@ exports.up = function(knex, Promise) {
       table.string('type')
       table.string('status')
       table.date('created')
-      table.integer('eastId').unsigned()
+    })
+    .createTable('build_diffs', table => {
+      table.increments('id').primary()
+      table.integer('buildId').unsigned()
         .references('id').inTable('build')
         .onDelete('SET NULL')
-      table.integer('westId').unsigned()
-        .references('id').inTable('build')
+      table.integer('diffId').unsigned()
+        .references('id').inTable('diff')
         .onDelete('SET NULL')
     })
 }

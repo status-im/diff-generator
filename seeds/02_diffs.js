@@ -6,8 +6,6 @@ exports.seed = function(knex, Promise) {
         {
           type: 'auto',
           status: 'wip',
-          eastId: 1,
-          westId: 3,
         },
       ]);
     });

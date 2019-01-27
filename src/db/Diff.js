@@ -21,20 +21,16 @@ class Diff extends Model {
   static get relationMappings() {
     const Build = require('./Build')
     return {
-      east: {
-        relation: Model.BelongsToOneRelation,
+      builds: {
+        relation: Model.ManyToManyRelation,
         modelClass: Build,
         join: {
-          from: 'build.id',
-          to: 'diff.eastId',
-        },
-      },
-      west: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Build,
-        join: {
-          from: 'build.id',
-          to: 'diff.westId',
+          from: 'diff.id',
+          through: {
+            from: 'build_diffs.diffId',
+            to: 'build_diffs.buildId'
+          },
+          to: 'build.id',
         },
       },
     }

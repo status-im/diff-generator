@@ -1,8 +1,9 @@
+const { ref } = require('objection')
 const { Model } = require('objection')
 
 class Build extends Model {
   static get tableName() {
-    return 'build';
+    return 'build'
   }
 
   static get jsonSchema () {
@@ -25,14 +26,15 @@ class Build extends Model {
     const Diff = require('./Diff')
     return {
       diffs: {
-        relation: Model.HasManyRelation,
+        relation: Model.ManyToManyRelation,
         modelClass: Diff,
         join: {
           from: 'build.id',
-          to: [
-            'diff.eastId',
-            'diff.westId',
-          ],
+          through: {
+            from: 'build_diffs.buildId',
+            to: 'build_diffs.diffId'
+          },
+          to: 'diff.id',
         },
       },
     }

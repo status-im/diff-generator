@@ -27,13 +27,16 @@ logPrefix(log, {prefixFormat:'%p:'})
 /* Define connection to the DataBase */
 const knex = Knex({
   client: 'sqlite3',
+  debug: true,
   useNullAsDefault: true,
   connection: { filename: DB_PATH },
   migrations: { tableName: 'migrations' },
+  log: { warn: log.warn, error: log.error, info: log.info },
 })
+knex.debug(true)
 
 /* Give the knex object to objection */
-Model.knex(knex);
+Model.knex(knex)
 
 /* Define the GraphQL schema */
 const gQLschema = builder()
