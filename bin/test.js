@@ -15,6 +15,8 @@ const File = require('../src/db/File')
 const Build = require('../src/db/Build')
 
 const main = async () => {
+  await Build.query().insert({name: 'dasdas', url: 'dasdasdasdas'})
+  await Build.query().insert({name: 'dasdas', url: 'dasdasdasdas'})
   let builds = await Build.query()
   console.dir(builds)
 }

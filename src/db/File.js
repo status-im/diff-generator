@@ -11,10 +11,10 @@ class File extends Model {
       required: ['url', 'type'],
       properties: {
         id: {type: 'integer'},
-        build_id: {type: 'integer'},
-        url: {type: 'string', minLength: 10, maxLength: 255},
-        type: {type: 'string', minLength: 3, maxLength: 10},
-        created: {type: 'date'},
+        buildId: {type: 'integer'},
+        url:     {type: 'string', minLength: 9, maxLength: 255},
+        type:    {type: 'string', minLength: 3, maxLength: 10},
+        created: {type: 'string', minLength: 8, maxLength: 30},
       }
     }
   }
@@ -27,22 +27,15 @@ class File extends Model {
         relation: Model.BelongsToOneRelation,
         modelClass: Build,
         join: {
-          from: 'files.build_id',
+          from: 'files.buildId',
           to: 'builds.id'
         },
-      },
-      diffs: {
-        relation: Model.HasManyRelation,
-        modelClass: Animal,
-        join: {
-          to: 'diffs.id'
-        }
       },
     }
   }
 
   $beforeInsert () {
-    this.created = new Date().toIOSString()
+    this.created = new Date().toISOString()
   }
 }
 

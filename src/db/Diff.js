@@ -11,35 +11,37 @@ class Diff extends Model {
       required: ['type', 'status'],
       properties: {
         id: {type: 'integer'},
-        type: {type: 'string', minLength: 3, maxLength: 30},
-        status: {type: 'string', minLength: 4, maxLength: 20},
-        created: {type: 'date'},
+        type:    {type: 'string', minLength: 3, maxLength: 30},
+        status:  {type: 'string', minLength: 4, maxLength: 20},
+        created: {type: 'string', minLength: 8, maxLength: 30},
       }
     }
   }
 
   static get relationMappings() {
-    const File = require('./file')
+    const File = require('./File')
     return {
       east: {
         relation: Model.BelongsToOneRelation,
         modelClass: File,
         join: {
-          to: 'diffs.east_id',
+          from: 'files.id',
+          to: 'diffs.eastId',
         },
       },
       west: {
         relation: Model.BelongsToOneRelation,
         modelClass: File,
         join: {
-          to: 'diffs.west_id',
+          from: 'files.id',
+          to: 'diffs.westId',
         },
       },
     }
   }
 
   $beforeInsert () {
-    this.created = new Date().toIOSString()
+    this.created = new Date().toISOString()
   }
 }
 

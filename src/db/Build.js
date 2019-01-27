@@ -10,30 +10,30 @@ class Build extends Model {
       type: 'object',
       required: ['name', 'url'],
       properties: {
-        id: {type: 'integer'},
-        url: {type: 'string', minLength: 10, maxLength: 255},
-        name: {type: 'string', minLength: 5, maxLength: 30},
-        created: {type: 'date'},
+        id:      {type: 'integer'},
+        url:     {type: 'string', minLength: 10, maxLength: 255},
+        name:    {type: 'string', minLength: 5,  maxLength: 30},
+        created: {type: 'string', minLength: 8,  maxLength: 30},
       }
     }
   }
 
   static get relationMappings() {
-    const File = require('./file')
+    const File = require('./File')
     return {
       builds: {
         relation: Model.HasManyRelation,
         modelClass: File,
         join: {
           from: 'builds.id',
-          to: 'files.build_id',
+          to: 'files.buildId',
         },
       },
     }
   }
 
   $beforeInsert () {
-    this.created = new Date().toIOSString()
+    this.created = new Date().toISOString()
   }
 }
 
