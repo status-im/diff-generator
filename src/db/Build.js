@@ -2,7 +2,7 @@ const { Model } = require('objection')
 
 class Build extends Model {
   static get tableName() {
-    return 'builds';
+    return 'build';
   }
 
   static get jsonSchema () {
@@ -27,10 +27,10 @@ class Build extends Model {
         relation: Model.HasManyRelation,
         modelClass: Diff,
         join: {
-          from: 'builds.id',
+          from: 'build.id',
           to: [
-            'diffs.eastId',
-            'diffs.westId',
+            'diff.eastId',
+            'diff.westId',
           ],
         },
       },

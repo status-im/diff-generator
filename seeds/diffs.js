@@ -1,8 +1,8 @@
 exports.seed = function(knex, Promise) {
-  return knex('diffs').del()
+  return knex('diff').del()
     .then(function () {
       /* Inserts seed entries */
-      return knex('diffs').insert([
+      return knex('diff').insert([
         {
           type: 'auto',
           status: 'wip',

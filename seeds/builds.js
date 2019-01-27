@@ -1,9 +1,9 @@
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
-  return knex('builds').del()
+  return knex('build').del()
     .then(function () {
       /* Inserts seed entries */
-      return knex('builds').insert([
+      return knex('build').insert([
         {
           buildUrl: 'https://ci.status.im/job/status-react/job/prs/job/linux/view/change-requests/job/PR-90/1/',
           fileUrl: 'https://status-im.ams3.digitaloceanspaces.com/StatusIm-181204-025915-22167d-nightly.apk',
