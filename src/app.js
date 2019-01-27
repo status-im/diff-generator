@@ -8,7 +8,7 @@ const BodyParser = require('koa-bodyparser')
 
 const Schema = require('./schema')
 
-const App = (domain, db, diff) => {
+const App = (domain, diff) => {
   const app = new Koa()
   const router = new JoiRouter()
   
