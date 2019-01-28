@@ -48,9 +48,8 @@ class Diff {
       )
     } catch(ex) {
       log.error('Diff failed: %s', ex.message)
-      throw ex
       this.updateDiffStatus(diff.id, 'failure')
-      return
+      throw ex
     }
     this.updateDiffStatus(diff.id, 'success')
     return rval

@@ -52,7 +52,7 @@ const App = (domain, diff, gQLschema) => {
   })
 
   router.get('/builds/:name', async (ctx) => {
-    ctx.body = await DB.Build.query().eager('diffs')
+    ctx.body = await DB.Build.query().eager('diffs.builds')
       .where('name', ctx.request.params.name)
   })
 
