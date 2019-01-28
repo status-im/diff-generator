@@ -1,6 +1,7 @@
 const log = require('loglevel')
 const Koa = require('koa')
 const mount = require('koa-mount')
+const serve = require('koa-static')
 const GraphQL = require('koa-graphql')
 const JSON = require('koa-json')
 const Logger = require('koa-logger')
@@ -11,7 +12,7 @@ const BodyParser = require('koa-bodyparser')
 const DB = require('./db')
 const Schema = require('./schema')
 
-const App = (domain, diff, gQLschema) => {
+const App = (domain, diffmgr, gQLschema) => {
   const app = new Koa()
   const router = new JoiRouter()
   
@@ -24,6 +25,9 @@ const App = (domain, diff, gQLschema) => {
      .use(JsonError())
      .use(BodyParser({onerror:console.error}))
      .use(router.middleware())
+
+  /* Host location of the diffs */
+  app.use(mount('/view', serve(diffmgr.dos.output_path)))
 
   /* Declare the GraphQL endpoint */
   app.use(mount('/graphql', GraphQL({schema: gQLschema, graphiql: true})))
@@ -57,8 +61,14 @@ const App = (domain, diff, gQLschema) => {
   })
 
   router.post('/builds', async (ctx) => {
-    const rval = await DB.Build.query().insert(ctx.request.body)
-    ctx.body = { status: 'ok' }
+    const build = await DB.Build.query().insert(ctx.request.body)
+    const builds = await diffmgr.findDiffableBuilds(build)
+    const diffNames = await diffmgr.builds(build, builds)
+    ctx.body = {
+      status: 'ok',
+      count: diffNames.length,
+      data: diffNames.map(d => `${domain}/view/${d}`),
+    }
   })
 
   /* Manual */
@@ -67,7 +77,7 @@ const App = (domain, diff, gQLschema) => {
     path: '/diffs/manual',
     validate: { type: 'json', body: Schema.manual },
     handler: async (ctx) => {
-      const rval = await diff.manual(ctx.request.body)
+      const rval = await diffmgr.manual(ctx.request.body)
       ctx.status = 201
       ctx.body = { status:'ok', url: `${domain}/${rval.name}` }
     },

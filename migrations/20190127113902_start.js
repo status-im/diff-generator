@@ -6,6 +6,7 @@ exports.up = function(knex, Promise) {
       table.string('name')
       table.string('filename')
       table.string('fileUrl')
+      table.string('commit')
       table.string('buildUrl')
       table.date('created')
     })

@@ -2,6 +2,7 @@ const fs = require('fs')
 const log = require('loglevel')
 const join = require('path').join
 const Axios = require('axios')
+const shortid = require('shortid')
 const exec = require('child_process').execFileSync
 
 const TEMP_PATH = '/var/tmp'
@@ -18,8 +19,10 @@ class DiffoScope {
 
   async pull (url) {
     /* we download the files, otherwise we can't diff */
-    const name = url.split('/').pop()
-    const path = join(TEMP_PATH, name)
+    const name = url.split('.').pop()
+    const dir = join(TEMP_PATH, shortid.generate())
+    const path = join(dir, name)
+    fs.mkdirSync(dir)
     log.debug(`Downloading: ${url}`)
     const resp = await Axios.request(url)
     fs.writeFileSync(path, resp.data)

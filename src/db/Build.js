@@ -20,6 +20,7 @@ class Build extends Model {
         fileUrl:   {type: 'string', minLength: 3, maxLength: 255},
         filename:  {type: 'string', minLength: 3, maxLength: 255},
         /* Optional */
+        commit:    {type: 'string', minLength: 5, maxLength: 40},
         buildUrl:  {type: 'string', minLength: 3, maxLength: 255},
       }
     }

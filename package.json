@@ -22,6 +22,7 @@
     "koa-json-error": "^3.1.2",
     "koa-logger": "^3.2.0",
     "koa-mount": "^4.0.0",
+    "koa-static": "^5.0.0",
     "loglevel": "^1.6.1",
     "objection": "^1.5.3",
     "objection-graphql": "^0.4.4",

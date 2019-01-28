@@ -8,7 +8,7 @@ const { builder } = require('objection-graphql')
 
 const DB = require('./db')
 const App = require('./app')
-const Diff = require('./diff')
+const DiffManager = require('./DiffManager')
 const DiffoScope = require('./diffoscope')
 
 const env = process.env
@@ -44,8 +44,8 @@ const gQLschema = builder()
   .build()
 
 const dos = new DiffoScope(DIFFS_PATH, TEMP_PATH)
-const diff = new Diff(dos)
-const app = App(PUBLIC_DOMAIN, diff, gQLschema)
+const diffmgr = new DiffManager(dos)
+const app = App(PUBLIC_DOMAIN, diffmgr, gQLschema)
 
 app.use(Logger())
 
