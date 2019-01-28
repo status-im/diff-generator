@@ -1,3 +1,4 @@
+const shortid = require('shortid')
 const { ref } = require('objection')
 const { Model } = require('objection')
 
@@ -9,15 +10,17 @@ class Build extends Model {
   static get jsonSchema () {
     return {
       type: 'object',
-      required: ['name', 'url'],
+      required: ['type', 'fileUrl'],
       properties: {
         id:        {type: 'integer'},
         created:   {type: 'string', minLength: 8, maxLength: 30},
         /* Mandatory */
-        name:      {type: 'string', minLength: 5, maxLength: 50},
-        type:      {type: 'string', minLength: 5, maxLength: 50},
-        fileUrl:   {type: 'string', minLength: 8, maxLength: 255},
-        buildUrl:  {type: 'string', minLength: 8, maxLength: 255},
+        name:      {type: 'string', minLength: 3, maxLength: 50},
+        type:      {type: 'string', minLength: 3, maxLength: 50},
+        fileUrl:   {type: 'string', minLength: 3, maxLength: 255},
+        filename:  {type: 'string', minLength: 3, maxLength: 255},
+        /* Optional */
+        buildUrl:  {type: 'string', minLength: 3, maxLength: 255},
       }
     }
   }
@@ -42,6 +45,10 @@ class Build extends Model {
 
   $beforeInsert () {
     this.created = new Date().toISOString()
+    this.filename = this.fileUrl.split('/').pop()
+    if (this.name === undefined) {
+      this.name = shortid.generate()
+    }
   }
 }
 

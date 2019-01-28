@@ -28,6 +28,7 @@ class DiffoScope {
   }
 
   async gen (name, urls) {
+    log.info(`Generating diff: ${name}`)
     /* are the files different? */
     let diff = false
     /* output path */
@@ -63,7 +64,7 @@ class DiffoScope {
       })
     }
     log.info(`Diff successful: ${path} (differnt: ${diff})`)
-    return { diff, path }
+    return { diff, path, name }
   }
 }
 

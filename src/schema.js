@@ -18,8 +18,7 @@ const builds = Joi.object().keys({
 })
 
 const manual = Joi.object().keys({
-  options: Joi.array().items(Joi.string()).valid(null),
-  name: Joi.string().uri().valid(null),
+  name: Joi.string().optional(),
   east: Joi.string().uri().required(),
   west: Joi.string().uri().required(),
 })

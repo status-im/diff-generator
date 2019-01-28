@@ -25,6 +25,7 @@
     "loglevel": "^1.6.1",
     "objection": "^1.5.3",
     "objection-graphql": "^0.4.4",
+    "shortid": "^2.2.14",
     "sqlite3": "^4.0.6"
   },
   "devDependencies": {

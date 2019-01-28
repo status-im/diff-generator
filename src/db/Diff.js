@@ -1,3 +1,4 @@
+const shortid = require('shortid')
 const { Model, ValidationError } = require('objection')
 
 const VALID_STATES = ['wip', 'same', 'different', 'failure']
@@ -10,12 +11,14 @@ class Diff extends Model {
   static get jsonSchema () {
     return {
       type: 'object',
-      required: ['type', 'status'],
+      required: ['status'],
       properties: {
-        id: {type: 'integer'},
-        type:    {type: 'string', minLength: 3, maxLength: 30},
-        status:  {type: 'string', minLength: 4, maxLength: 20},
+        id:      {type: 'integer'},
         created: {type: 'string', minLength: 8, maxLength: 30},
+        /* Mandatory */
+        name:    {type: 'string', minLength: 3, maxLength: 30},
+        type:    {type: 'string', minLength: 3, maxLength: 30},
+        status:  {type: 'string', minLength: 3, maxLength: 20},
       }
     }
   }
@@ -38,10 +41,25 @@ class Diff extends Model {
     }
   }
 
-  $beforeInsert () {
+  async nameExists(name) {
+    const count = await Diff.query()
+      .where('name', this.name)
+      .count('id')
+      .pluck('count(`id`)')
+      .first()
+    return count > 0
+  }
+
+  async $beforeInsert () {
     this.created = new Date().toISOString()
+    if (this.name === undefined) {
+      this.name = shortid.generate()
+    }
+    if (await this.nameExists(this.name)) {
+      throw new Error(`Diff named "${this.name}" already exists!`)
+    }
     if (!this.status in VALID_STATES) {
-      throw new ValidationError(`Status ${this.status} s not valid!`)
+      throw new Error(`Status "${this.status}" is not valid!`)
     }
   }
 }

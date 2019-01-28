@@ -1,19 +1,28 @@
 const log = require('loglevel')
 const join = require('path').join
 
+const DB = require('./db')
+
 const TEMP_PATH = '/var/tmp'
 const JQUERY_URL = 'https://code.jquery.com/jquery-3.3.1.min.js'
 /* 0 disables limits on report size */
 const MAX_REPORT_SIZE = 0
 
 class Diff {
-  constructor (database, diffoscope) {
-    this.db = database
+  constructor (diffoscope) {
     this.dos = diffoscope
   }
 
-  async manual (east, west) {
-    const diff = this.db.addDiff({east, west})
+  async manual (obj) {
+    const diff = await DB.Diff.query().insertGraph({
+      name: obj.name,
+      type: 'manual',
+      status: 'new',
+      builds: [
+        { name: obj.name, type: 'manual', fileUrl: obj.east },
+        { name: obj.name, type: 'manual', fileUrl: obj.west },
+      ]
+    })
     return await this.run(diff)
   }
 
@@ -26,18 +35,25 @@ class Diff {
     })
   }
 
+  async updateDiffStatus(id, status) {
+    return await DB.Diff.query().update({status}).where('id', id)
+  }
+
   async run (diff) {
+    let rval
     /* generate the diff report */
     try {
-      return await this.dos.gen(
-        join(diff.east.filename, 'vs', diff.west.filename),
-        [diff.east.url, diff.west.url]
+      rval = await this.dos.gen(
+        diff.name, [diff.builds[0].fileUrl, diff.builds[1].fileUrl]
       )
     } catch(ex) {
       log.error('Diff failed: %s', ex.message)
       throw ex
-      this.db.updateDiff(diff.id, 'FAILURE')
+      this.updateDiffStatus(diff.id, 'failure')
+      return
     }
+    this.updateDiffStatus(diff.id, 'success')
+    return rval
   }
 
 }
