@@ -14,8 +14,14 @@ ReactDOM.render(
   <ApolloProvider client={client}>
     <Router path="/" history={history}>
       <div className="App">
-        <h1>TEST APP</h1>
-        <Diffs/>
+        <div className="container">
+          <div className="row">
+            <div className="column">
+              <h2>Diffs</h2>
+              <Diffs/>
+            </div>
+          </div>
+        </div>
       </div>
     </Router>
   </ApolloProvider>,
