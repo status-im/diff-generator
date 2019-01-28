@@ -61,12 +61,15 @@ const App = (domain, diffmgr, gQLschema) => {
   })
 
   router.post('/builds', async (ctx) => {
+    let diff
     const build = await DB.Build.query().insert(ctx.request.body)
-    const builds = await diffmgr.findDiffableBuilds(build)
-    const diffNames = await diffmgr.builds(build, builds)
+    const older = await diffmgr.findLastDiffableBuild(build)
+    if (older) {
+       diff = await diffmgr.build(build, older)
+    }
     ctx.body = {
-      count: diffNames.length,
-      data: diffNames.map(d => `${domain}/view/${d}`),
+      status: 'ok',
+      diff: diff ? `${domain}/view/${diff}` : null,
     }
   })
 
@@ -78,7 +81,10 @@ const App = (domain, diffmgr, gQLschema) => {
     handler: async (ctx) => {
       const rval = await diffmgr.manual(ctx.request.body)
       ctx.status = 201
-      ctx.body = { status:'ok', url: `${domain}/${rval.name}` }
+      ctx.body = {
+        status:'ok',
+        url: `${domain}/view/${rval.name}`
+      }
     },
   })
 

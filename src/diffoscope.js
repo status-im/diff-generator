@@ -46,6 +46,7 @@ class DiffoScope {
     const args = [
       '--debug',
       '--no-progress',
+      '--force-details',
       `--max-report-size=${MAX_REPORT_SIZE}`,
       `--html-dir=${path}`,
       cached.files[0].path, cached.files[1].path,
@@ -65,7 +66,8 @@ class DiffoScope {
         throw ex
       }
     } finally { /* cleanup downloaded files */
-      rmdir(cached.dir)
+      log.info(`Deleting: ${cached.dir}`)
+      rmdir.sync(cached.dir)
     }
     log.info(`Diff successful: ${path} (differnt: ${diff})`)
     return { diff, path, name }

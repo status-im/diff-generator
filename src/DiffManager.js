@@ -28,15 +28,19 @@ class Diff {
 
   /* we start the builds asynchroniusly, returns names of diffs */
   async builds (newest, builds) {
-    return await Promise.all(builds.map(async toDiff => {
-      const diff = await DB.Diff.query().insertGraph({
-        type: 'auto',
-        status: 'new',
-        builds: [{id: newest.id}, {id: toDiff.id}]
-      }, {relate: true}).eager('builds')
-      this.run(diff)
-      return diff.name
-    }))
+    return await Promise.all(builds.map(async toDiff => 
+      await this.build(newest, toDiff)
+    ))
+  }
+
+  async build (newBuild, oldBuild) {
+    const diff = await DB.Diff.query().insertGraph({
+      type: 'auto',
+      status: 'new',
+      builds: [{id: newBuild.id}, {id: oldBuild.id}]
+    }, {relate: true}).eager('builds')
+    this.run(diff)
+    return diff.name
   }
 
   async updateDiffStatus(id, status) {
@@ -79,6 +83,11 @@ class Diff {
           .where('diffs.id', null)
           .orWhereNotIn('diffs.id', buildDiffs)
       })
+      .orderBy('build.id', 'desc')
+  }
+
+  async findLastDiffableBuild(build) {
+    return (await this.findDiffableBuilds(build)).pop()
   }
 }
 
