@@ -34,14 +34,26 @@ const App = (domain, diff, gQLschema) => {
   /* Static healthcheck response */
   router.get('/health', (ctx) => { ctx.body = 'OK' })
 
-  router.get('/builds', async (ctx) => {
-    const builds = await DB.Build.query().eager('diffs')
-    ctx.body = { count: builds.length, data: builds }
-  })
-
+  /* Diffs */
   router.get('/diffs', async (ctx) => {
     const diffs = await DB.Diff.query().eager('builds')
     ctx.body = { count: diffs.length, data: diffs }
+  })
+
+  router.get('/diffs/:name', async (ctx) => {
+    ctx.body = await DB.Diff.query().eager('builds')
+      .where('name', ctx.request.params.name)
+  })
+
+  /* Builds */
+  router.get('/builds', async (ctx) => {
+    builds = await DB.Build.query().eager('diffs')
+    ctx.body = { count: builds.length, data: builds }
+  })
+
+  router.get('/builds/:name', async (ctx) => {
+    ctx.body = await DB.Build.query().eager('diffs')
+      .where('name', ctx.request.params.name)
   })
 
   router.post('/builds', async (ctx) => {
@@ -49,9 +61,10 @@ const App = (domain, diff, gQLschema) => {
     ctx.body = { status: 'ok' }
   })
 
+  /* Manual */
   router.route({
     method: 'post',
-    path: '/manual',
+    path: '/diffs/manual',
     validate: { type: 'json', body: Schema.manual },
     handler: async (ctx) => {
       const rval = await diff.manual(ctx.request.body)
