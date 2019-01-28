@@ -9,7 +9,9 @@ const CONT_NAME = 'diffgen'
 
 gulp.task('devel', () => {
   nodemon({
-      script: 'src/server.js',
+      script: 'src/server/index.js',
+      watch: 'src/server',
+      ignore: 'src/client',
       presets: ['env', 'stage-2'],
     })
     .on('restart', () => { console.log('>> node restart') })

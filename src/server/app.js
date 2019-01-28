@@ -26,6 +26,8 @@ const App = (domain, diffmgr, gQLschema) => {
      .use(BodyParser({onerror:console.error}))
      .use(router.middleware())
 
+  /* host the public folder */
+  app.use(serve('public'))
   /* Host location of the diffs */
   app.use(mount('/view', serve(diffmgr.dos.output_path)))
 
