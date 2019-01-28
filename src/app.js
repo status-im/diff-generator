@@ -65,7 +65,6 @@ const App = (domain, diffmgr, gQLschema) => {
     const builds = await diffmgr.findDiffableBuilds(build)
     const diffNames = await diffmgr.builds(build, builds)
     ctx.body = {
-      status: 'ok',
       count: diffNames.length,
       data: diffNames.map(d => `${domain}/view/${d}`),
     }

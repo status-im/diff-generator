@@ -72,6 +72,7 @@ class Diff {
     return await DB.Build.query()
       .leftJoinRelation('diffs')
       .where('build.commit', build.commit)
+      .where('build.type', build.type)
       .andWhere('build.id', '!=', build.id)
       .andWhere(builder => {
         builder
