@@ -69,7 +69,11 @@ const App = (domain, diffmgr, gQLschema) => {
     }
     ctx.body = {
       status: 'ok',
-      diff: diff ? `${domain}/view/${diff}` : null,
+      diff: {
+        build: older.name,
+        file: older.filename,
+        url: diff ? `${domain}/view/${diff}` : null,
+      }
     }
   })
 
