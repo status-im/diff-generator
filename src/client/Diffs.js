@@ -1,18 +1,19 @@
-import React, { Component } from 'react';
-import { Query } from "react-apollo";
-import gql from "graphql-tag";
+import React, { Component } from 'react'
+import { Table } from 'fannypack'
+import { Query } from "react-apollo"
+import gql from "graphql-tag"
 
 class DiffRow extends Component {
   render() {
     const diff = this.props.diff
     return (
-      <tr>
-        <td><code>{diff.name}</code></td>
-        <td>{diff.type}</td>
-        <td>{diff.status}</td>
-        <td><b>{diff.builds[0].name}</b></td>
-        <td><b>{diff.builds[1].name}</b></td>
-      </tr>
+      <Table.Row>
+        <Table.Cell>{diff.status}</Table.Cell>
+        <Table.Cell><code>{diff.name}</code></Table.Cell>
+        <Table.Cell>{diff.type}</Table.Cell>
+        <Table.Cell><b>{diff.builds[0].name}</b></Table.Cell>
+        <Table.Cell><b>{diff.builds[1].name}</b></Table.Cell>
+      </Table.Row>
     )
   }
 }
@@ -36,29 +37,29 @@ const Diffs = () => (
     `}
   >
     {({ loading, error, data }) => {
-      if (loading) return <p>Loading...</p>;
-      if (error)   return <p>Error :(</p>;
-      let idx = 0;
+      if (loading) return <p>Loading...</p>
+      if (error)   return <p>Error :(</p>
+      let idx = 0
       return (
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Build A</th>
-              <th>Build B</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <Table.Head>
+            <Table.Row>
+              <Table.HeadCell>Status</Table.HeadCell>
+              <Table.HeadCell>Name</Table.HeadCell>
+              <Table.HeadCell>Type</Table.HeadCell>
+              <Table.HeadCell>Build A</Table.HeadCell>
+              <Table.HeadCell>Build B</Table.HeadCell>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
             {data.diffs.map((diff) => (
               <DiffRow key={idx++} diff={diff} />
             ))}
-          </tbody>
-        </table>
-      );
+          </Table.Body>
+        </Table>
+      )
     }}
   </Query>
-);
+)
 
-export default Diffs;
+export default Diffs
