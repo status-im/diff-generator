@@ -1,14 +1,13 @@
 body.diffoscope {
-  background: white;
+  margin: 0px;
+  background: whitesmoke;
   color: black;
 }
 .diffoscope .footer {
   font-size: small;
 }
 .diffoscope .difference {
-  border: outset #888 1px;
-  background: #E8E8E8;
-  background: rgba(0,0,0,.1);
+  background: whitesmoke;
   padding: 0.5em;
   margin: 0.5em 0;
 }

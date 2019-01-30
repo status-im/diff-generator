@@ -25,7 +25,6 @@ const Diffs = () => (
     {({ loading, error, data }) => {
       if (loading) return <p>Loading...</p>
       if (error)   return <p>Error :(</p>
-      let idx = 0
       return <DiffsTable diffs={data.diffs}/>
     }}
   </Query>
