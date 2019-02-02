@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { styled, Columns, Column, Block } from 'fannypack'
 
+import randomColor from './randomColor'
 import DiffBox from './DiffBox'
 
 const MarginBlock = styled(Block)`

@@ -8,7 +8,7 @@ const Diffs = () => (
   <Query
     query={gql`
       {
-        diffs(orderByDesc: id) {
+        diffs(orderByDesc: id, limit: 6) {
           name
           type
           status
@@ -27,7 +27,9 @@ const Diffs = () => (
     {({ loading, error, data }) => {
       if (loading) return <p>Loading...</p>
       if (error)   return <p>Error :(</p>
-      return <Viewer diffs={data.diffs}/>
+      return (
+        <Viewer diffs={data.diffs}/>
+      )
     }}
   </Query>
 )
