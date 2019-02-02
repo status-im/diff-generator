@@ -1,3 +1,4 @@
+*.log
 public/*.js
 node_modules/
 dist/*
