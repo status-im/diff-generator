@@ -1,10 +1,26 @@
 import React, { Component } from 'react'
-import { styled, Block, Divider } from 'fannypack'
+import Iframe from 'react-iframe'
+import { styled, Heading, Box, Block } from 'fannypack'
 
-import DiffView from './DiffView'
+import Viewer from './Viewer'
 
-export default class Viewer extends Component {
+export default class DiffView extends Component {
   render() {
-    return <DiffView diffName={this.props.diffName}/>
+    let content
+    if (!this.props.diffName) {
+      content = <Heading>Loading...</Heading>
+    } else {
+      content = (
+        <Iframe
+          position="relative"
+          display="block"
+          allowFullScreen
+          scroll="no"
+          height="100%"
+          url={`/view/${this.props.diffName}`}
+        />
+      )
+    }
+    return content
   }
 }
