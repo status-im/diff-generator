@@ -9,11 +9,18 @@ const MainGrid = styled(Grid)`
   height: 100%;
   width: 100%;
   grid-template-rows: 5% 25% 70%;
-  grid-template-columns: 100%;
+  grid-template-columns: 30% 70%;
   grid-template-areas:
-  "header"
-  "search"
-  "viewer"
+  "header header"
+  "search search"
+  "viewer viewer";
+
+  @media screen and (min-width: 120em) {
+    grid-template-areas:
+    "header header"
+    "search viewer"
+    "search viewer"
+  }
 `
 
 const HeaderCont = styled(Grid.Item)`

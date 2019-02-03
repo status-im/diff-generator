@@ -14,6 +14,7 @@ const GlobalStyle = createGlobalStyle`
   html, body, div#app {
     margin: 0;
     height: 100%;
+    font-size: 0.90em !important;
   }
   iframe {
     overflow: visible;

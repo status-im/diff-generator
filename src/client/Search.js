@@ -1,11 +1,12 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { styled, Spinner, Block, Input } from 'fannypack'
-import { Query } from 'react-apollo'
+import { Query, graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 
+import SearchField from './SearchField'
 import DiffsTable from './DiffsTable'
 
-const QUERY = gql`
+const SEARCH_QUERY = gql`
   query Dog($search: String!) {
     diffs(
       nameLike: $search,
@@ -27,35 +28,48 @@ const QUERY = gql`
   }
 `
 
-export default class Search extends Component {
+class Search extends PureComponent {
   constructor (props) {
     super(props)
-    this.state = { search: '' }
+    this.state = { selected: 0 }
     this.setSearch = this.setSearch.bind(this)
+    this.select = this.moveSelected.bind(this)
   }
 
-  setSearch(search) {
-    this.setState({search})
+  setSearch (search) {
+    this.props.data.refetch({search})
+  }
+
+  moveSelected (val) {
+    let selected = this.state.selected + val
+    if (seleted < 0) {
+      this.setState({selected: 0})
+    } else if (seleted > this.props.data.diffs.length) {
+      this.setState({selected: 0})
+    } else {
+      this.setState({selected})
+    }
   }
 
   render() {
+    const { loading, error, diffs } = this.props.data
+    if (loading) return <Spinner size="large" marginLeft="major-1" />;
+    if (error)   return <Block><p>Error</p></Block>
     return (
       <Block>
-        <Input
-          isFullWidth autoFocus
-          onChange={e => this.setSearch(e.target.value)}
-          value={this.state.search}
+        <SearchField
+          moveSelected={this.moveSelected}
+          setSearch={this.setSearch}
         />
-        <Query query={QUERY} variables={{search: `%${this.state.search}%`}}>
-          {({ loading, error, data }) => {
-            if (loading) return <Spinner size="large" marginLeft="major-1" />;
-            if (error)   return <Block><p>Error</p></Block>
-            return (
-              <DiffsTable diffs={data.diffs}/>
-            )
-          }}
-        </Query>
+        <DiffsTable
+          selected={diffs[this.state.selected]}
+          diffs={diffs}
+        />
       </Block>
     )
   }
 }
+
+export default graphql(SEARCH_QUERY, {
+  options: { variables: { search: '%' } }
+})(Search)
