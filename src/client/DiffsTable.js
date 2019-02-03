@@ -5,9 +5,8 @@ import DiffRow from './DiffRow'
 
 export default class DiffsTable extends Component {
   render() {
-    let { selected } = this.props
+    let { selected, diffs } = this.props
     let idx = 0
-    let diffs = this.props.diffs || []
     if (diffs.length === 0) {
       return (
         <Alert border="shadow" type="info" title="Tips">
@@ -22,17 +21,17 @@ export default class DiffsTable extends Component {
       )
     }
     return (
-      <Table isStriped isFullWidth>
+      <Table isFullWidth>
         <Table.Head>
           <Table.Row>
             <Table.HeadCell>Status</Table.HeadCell>
-            <Table.HeadCell>Name</Table.HeadCell>
+            {/*<Table.HeadCell>Name</Table.HeadCell>*/}
             {/*<Table.HeadCell>Type</Table.HeadCell>*/}
             <Table.HeadCell>Build</Table.HeadCell>
             <Table.HeadCell>File</Table.HeadCell>
           </Table.Row>
         </Table.Head>
-        {diffs.map((diff) => (
+        {(diffs || []).map((diff) => (
           <DiffRow
             key={idx++}
             diff={diff}

@@ -1,75 +1,63 @@
 import React, { PureComponent } from 'react'
 import { styled, Spinner, Block, Input } from 'fannypack'
-import { Query, graphql } from 'react-apollo'
-import gql from 'graphql-tag'
 
-import SearchField from './SearchField'
-import DiffsTable from './DiffsTable'
+import Results from './Results'
 
-const SEARCH_QUERY = gql`
-  query Dog($search: String!) {
-    diffs(
-      nameLike: $search,
-      orderByDesc: id,
-      limit: 6
-    ) {
-      name
-      type
-      status
-      created
-      builds {
-        name
-        type
-        filename
-        fileUrl
-        buildUrl
-      }
-    }
-  }
-`
-
-class Search extends PureComponent {
+export default class Search extends PureComponent {
   constructor (props) {
     super(props)
-    this.state = { selected: 0 }
+    this.state = { search: '', selected: 0 }
+    /* ref for accessing diffs */
+    this.results = React.createRef()
+    /* bind methods */
     this.setSearch = this.setSearch.bind(this)
-    this.select = this.moveSelected.bind(this)
+    this.setViewed = this.setViewed.bind(this)
+    this.moveSelected = this.moveSelected.bind(this)
+    this.handleKeyDown = this.handleKeyDown.bind(this)
   }
 
   setSearch (search) {
-    this.props.data.refetch({search})
+    this.setState({search})
   }
 
   moveSelected (val) {
     let selected = this.state.selected + val
-    if (seleted < 0) {
-      this.setState({selected: 0})
-    } else if (seleted > this.props.data.diffs.length) {
-      this.setState({selected: 0})
-    } else {
-      this.setState({selected})
+    this.setState({selected})
+  }
+
+  setViewed() {
+    const diff = this.results.current
+      .getWrappedInstance()
+      .getDiffName(this.state.selected)
+    this.props.setViewed(diff)
+  }
+
+  handleKeyDown (e) {
+    switch (e.keyCode) {
+      case 38: this.moveSelected(-1) /* up */
+      case 40: this.moveSelected(1)  /* down */
+      case 39: this.setViewed() /* right */
+      case 13: this.setViewed() /* enter */
     }
   }
 
   render() {
-    const { loading, error, diffs } = this.props.data
-    if (loading) return <Spinner size="large" marginLeft="major-1" />;
-    if (error)   return <Block><p>Error</p></Block>
+    const { search, selected } = this.state
+    console.log('search:', search)
     return (
       <Block>
-        <SearchField
-          moveSelected={this.moveSelected}
-          setSearch={this.setSearch}
+        <Input
+          isFullWidth autoFocus
+          onKeyDown={this.handleKeyDown}
+          onChange={e => this.setSearch(e.target.value)}
+          value={search}
         />
-        <DiffsTable
-          selected={diffs[this.state.selected]}
-          diffs={diffs}
+        <Results
+          ref={this.results}
+          search={`%${search}%`}
+          selected={selected}
         />
       </Block>
     )
   }
 }
-
-export default graphql(SEARCH_QUERY, {
-  options: { variables: { search: '%' } }
-})(Search)

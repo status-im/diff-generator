@@ -34,14 +34,14 @@ const SearchCont = styled(Grid.Item)`
   height: 100%;
   width: 100%;
   padding: 1rem;
-  background-color: whitesmoke;
+  background-color: darkgrey;
   grid-area: search;
 `
 const ViewerCont = styled(Grid.Item)`
   height: 100%;
   width: 100%;
   padding: 1rem;
-  background-color: darkgrey;
+  background-color: whitesmoke;
   grid-area: viewer;
 `
 
