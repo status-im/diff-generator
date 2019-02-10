@@ -8,20 +8,12 @@ const { builder } = require('objection-graphql')
 
 const DB = require('./db')
 const App = require('./app')
+const conf = require('./config')
 const DiffManager = require('./DiffManager')
 const DiffoScope = require('./diffoscope')
 
-const env = process.env
-/* DEFAULTS */
-const LOG_LEVEL     = env.LOG_LEVEL     || 'INFO'
-const LISTEN_PORT   = env.LISTEN_PORT   || 8000
-const PUBLIC_DOMAIN = env.PUBLIC_DOMAIN || `http://localhost:${LISTEN_PORT}`
-const DB_PATH       = env.DB_PATH       || '/tmp/diff.db'
-const TEMP_PATH     = env.TEMP_PATH     || '/tmp/diffs/tmp'
-const DIFFS_PATH    = env.DIFFS_PATH    || '/tmp/diffs'
-
 /* set the logging level (TRACE, DEBUG, INFO, WARN, ERROR, SILENT) */
-log.setDefaultLevel(log.levels[LOG_LEVEL])
+log.setDefaultLevel(log.levels[conf.LOG_LEVEL])
 logPrefix(log, {prefixFormat:'%p:'})
 
 /* Define connection to the DataBase */
@@ -29,7 +21,7 @@ const knex = Knex({
   client: 'sqlite3',
   debug: false,
   useNullAsDefault: true,
-  connection: { filename: DB_PATH },
+  connection: { filename: conf.DB_PATH },
   migrations: { tableName: 'migrations' },
   log: { warn: log.warn, error: log.error, info: log.info },
 })
@@ -43,12 +35,12 @@ const gQLschema = builder()
   .model(DB.Build)
   .build()
 
-const dos = new DiffoScope(DIFFS_PATH, TEMP_PATH)
+const dos = new DiffoScope(conf.DIFFS_PATH, conf.TEMP_PATH)
 const diffmgr = new DiffManager(dos)
-const app = App(PUBLIC_DOMAIN, diffmgr, gQLschema)
+const app = App(diffmgr, gQLschema)
 
 app.use(Logger())
 
-app.listen(LISTEN_PORT)
+app.listen(conf.LISTEN_PORT)
 
-console.log(`Started at: http://localhost:${LISTEN_PORT}/`)
+console.log(`Started at: http://localhost:${conf.LISTEN_PORT}/`)

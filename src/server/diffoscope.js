@@ -47,6 +47,7 @@ class DiffoScope {
       '--debug',
       '--no-progress',
       '--force-details',
+      '--css=/common.css',
       `--max-report-size=${MAX_REPORT_SIZE}`,
       `--html-dir=${path}`,
       cached.files[0].path, cached.files[1].path,

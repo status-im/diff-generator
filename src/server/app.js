@@ -10,9 +10,10 @@ const JoiRouter = require('koa-joi-router')
 const BodyParser = require('koa-bodyparser')
 
 const DB = require('./db')
+const conf = require('./config')
 const Schema = require('./schema')
 
-const App = (domain, diffmgr, gQLschema) => {
+const App = (diffmgr, gQLschema) => {
   const app = new Koa()
   const router = new JoiRouter()
   
@@ -29,7 +30,7 @@ const App = (domain, diffmgr, gQLschema) => {
   /* host the public folder */
   app.use(serve('public'))
   /* Host location of the diffs */
-  app.use(mount('/view', serve(diffmgr.dos.output_path)))
+  app.use(mount('/view', serve(conf.DIFFS_PATH)))
 
   /* Declare the GraphQL endpoint */
   app.use(mount('/graphql', GraphQL({schema: gQLschema, graphiql: true})))
@@ -74,7 +75,7 @@ const App = (domain, diffmgr, gQLschema) => {
       diff: {
         build: older.name,
         file: older.filename,
-        url: diff ? `${domain}/view/${diff}` : null,
+        url: diff ? `${conf.PUBLIC_DOMAIN}/view/${diff}` : null,
       }
     }
   })
@@ -89,7 +90,7 @@ const App = (domain, diffmgr, gQLschema) => {
       ctx.status = 201
       ctx.body = {
         status:'ok',
-        url: `${domain}/view/${rval.name}`
+        url: `${conf.PUBLIC_DOMAIN}/view/${rval.name}`
       }
     },
   })
