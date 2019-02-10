@@ -15,7 +15,7 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     height: 100%;
     font-size: 0.90em !important;
-    background-color: darkgrey;
+    background-color: midnightblue;
   }
   iframe {
     overflow: visible;

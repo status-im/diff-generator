@@ -39,7 +39,11 @@ class Results extends PureComponent {
     if (loading) return <Block><p>Loading...</p></Block>;
     if (error)   return <Block><p>Error</p></Block>;
     return (
-      <DiffsTable selected={this.props.selected} diffs={diffs}/>
+      <DiffsTable
+        diffs={diffs}
+        selected={this.props.selected}
+        setViewed={this.props.setViewed}
+      />
     )
   }
 }

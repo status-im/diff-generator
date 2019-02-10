@@ -27,14 +27,14 @@ const HeaderCont = styled(Grid.Item)`
   height: 100%;
   width: 100%;
   padding: 1rem;
-  background-color: darkgrey;
+  background-color: gainsboro;
   grid-area: header;
 `
 const SearchCont = styled(Grid.Item)`
   height: 100%;
   width: 100%;
   padding: 1rem;
-  background-color: darkgrey;
+  background-color: gainsboro;
   grid-area: search;
 `
 const ViewerCont = styled(Grid.Item)`
@@ -53,6 +53,7 @@ export default class Main extends Component {
   }
 
   setViewed (diffName) {
+    console.log('Viewed:', diffName)
     this.setState({viewing: diffName})
   }
 

@@ -36,7 +36,7 @@ export default class DiffsTable extends Component {
             key={idx++}
             diff={diff}
             selected={selected%diffs.length==idx-1}
-            selectDiff={()=>{}}
+            selectDiff={this.props.setViewed.bind(diff.name)}
           />
         ))}
       </Table>

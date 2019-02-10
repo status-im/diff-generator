@@ -11,7 +11,7 @@ export default class DiffRow extends Component {
       <Table.Body
         className={rowClass}
         onClick={this.props.selectDiff}
-        backgroundColor={this.props.selected?'successTint':null}
+        backgroundColor={this.props.selected?'silver':null}
       >
         <Table.Row>
           <Table.Cell><DiffStatus status={diff.status}/></Table.Cell>
@@ -24,7 +24,7 @@ export default class DiffRow extends Component {
           </Table.Cell>
         </Table.Row>
         <Table.Row>
-          <Table.Cell><code>{diff.name}</code></Table.Cell>
+          <Table.Cell><h3><code>{diff.name}</code></h3></Table.Cell>
           <Table.Cell>
             <a href={diff.builds[1].buildUrl}>{diff.builds[1].name}</a>
           </Table.Cell>

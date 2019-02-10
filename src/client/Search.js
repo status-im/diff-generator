@@ -43,7 +43,6 @@ export default class Search extends PureComponent {
 
   render() {
     const { search, selected } = this.state
-    console.log('search:', search)
     return (
       <Block>
         <Input
@@ -56,6 +55,7 @@ export default class Search extends PureComponent {
           ref={this.results}
           search={`%${search}%`}
           selected={selected}
+          setViewed={this.props.setViewed}
         />
       </Block>
     )
