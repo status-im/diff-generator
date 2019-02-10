@@ -80,7 +80,7 @@
     "api-image": "gulp image",
     "api-push": "gulp push",
     "api-release": "release",
-    "ui-watch": "webpack --watch",
+    "ui-devel": "webpack --watch",
     "ui-start-prod": "node server",
     "ui-start-dev": "nodemon server",
     "ui-start": "npm run watch & npm run start-dev",
