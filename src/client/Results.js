@@ -36,8 +36,13 @@ class Results extends PureComponent {
   
   render() {
     const { loading, error, diffs } = this.props.data
-    if (loading) return <Block><p>Loading...</p></Block>;
-    if (error)   return <Block><p>Error</p></Block>;
+    if (loading) {
+      return <Block><p>Loading...</p></Block>;
+    }
+    if (error) {
+      console.error(error)
+      return <Block><p>Error</p></Block>
+    }
     return (
       <DiffsTable
         diffs={diffs}
