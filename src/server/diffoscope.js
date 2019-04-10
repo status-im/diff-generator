@@ -1,9 +1,11 @@
 const fs = require('fs')
 const log = require('loglevel')
 const join = require('path').join
-const Axios = require('axios')
+const http = require('axios')
 const rmdir = require("rimraf")
 const exec = require('child_process').execFileSync
+const util = require('util')
+const stream = require('stream')
 
 const JQUERY_URL = 'https://code.jquery.com/jquery-3.3.1.min.js'
 /* 0 disables limits on report size */
@@ -31,8 +33,13 @@ class DiffoScope {
     const name = url.split('/').pop()
     const path = join(dir, name)
     log.info(`Downloading: ${url}`)
-    const resp = await Axios.request(url)
-    fs.writeFileSync(path, resp.data)
+    log.info(`Downloading: ${typeof(url)}`)
+    const resp = await http({url, responseType: 'stream'})
+
+    /* we use pipeline so we can await for the write */
+    const pipeline = util.promisify(stream.pipeline)
+    await pipeline(resp.data, fs.createWriteStream(path))
+
     log.info(`Saved to: ${path}`)
     return { name, path, dir }
   }
