@@ -34,10 +34,10 @@ export default class Search extends PureComponent {
 
   handleKeyDown (e) {
     switch (e.keyCode) {
-      case 38: this.moveSelected(-1) /* up */
-      case 40: this.moveSelected(1)  /* down */
-      case 39: this.setViewed() /* right */
-      case 13: this.setViewed() /* enter */
+      case 38: this.moveSelected(-1); break; /* up */
+      case 40: this.moveSelected(1); break;  /* down */
+      case 39: this.setViewed(); break;      /* right */
+      case 13: this.setViewed(); break;      /* enter */
     }
   }
 
