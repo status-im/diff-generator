@@ -6,7 +6,7 @@ import { styled, Spinner, Block } from 'fannypack'
 import DiffsTable from './DiffsTable'
 
 const diffsQuery = gql`
-  query Dog($search: String!) {
+  query DiffsQuery($search: String!) {
     diffs(
       nameLike: $search,
       orderByDesc: id,
