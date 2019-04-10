@@ -1,8 +1,13 @@
 import React, { Component } from 'react'
-import { styled, Grid, Heading } from 'fannypack'
+import { styled, Box, Flex, Heading } from 'fannypack'
+
+import AddDialog from './AddDialog'
 
 const Diffs = () => (
-  <Heading>Diff Generator</Heading>
+  <Flex justifyContent="space-between" flexDirection="row">
+    <Box><Heading>Diff Generator</Heading></Box>
+    <Box><AddDialog/></Box>
+  </Flex>
 )
 
 export default Diffs
