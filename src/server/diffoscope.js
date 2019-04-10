@@ -21,7 +21,7 @@ class DiffoScope {
     for (let dir of [this.output_path, this.temp_path]) {
       if (!fs.existsSync(dir)) {
         log.info(`Creating dir: ${dir}`)
-        fs.mkdirSync(dir)
+        fs.mkdirSync(dir, { recursive: true })
       }
     }
   }
