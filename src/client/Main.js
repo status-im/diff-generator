@@ -4,6 +4,7 @@ import { styled, Grid } from 'fannypack'
 import Header from './Header'
 import Search from './Search'
 import Viewer from './Viewer'
+import Latest from './Latest'
 
 const MainGrid = styled(Grid)`
   height: 100%;
@@ -58,6 +59,10 @@ export default class Main extends Component {
   }
 
   render () {
+    let viewer = <Viewer diffName={this.state.viewing}/>
+    if (!this.state.viewing) {
+      viewer = <Latest/>
+    }
     return (
       <MainGrid>
         <HeaderCont>
@@ -67,7 +72,7 @@ export default class Main extends Component {
           <Search setViewed={this.setViewed}/>
         </SearchCont>
         <ViewerCont>
-          <Viewer diffName={this.state.viewing}/>
+          {viewer}
         </ViewerCont>
       </MainGrid>
     )
