@@ -14,6 +14,16 @@ class DiffoScope {
     this.output_path = output_path
     this.temp_path = temp_path
     this.jquery_url = jquery_url
+    this.createDirs()
+  }
+
+  createDirs () {
+    for (let dir of [this.output_path, this.temp_path]) {
+      if (!fs.existsSync(dir)) {
+        log.info(`Creating dir: ${dir}`)
+        fs.mkdirSync(dir)
+      }
+    }
   }
 
   async pull (dir, url) {
