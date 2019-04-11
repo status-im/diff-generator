@@ -33,7 +33,6 @@ class DiffoScope {
     const name = url.split('/').pop()
     const path = join(dir, name)
     log.info(`Downloading: ${url}`)
-    log.info(`Downloading: ${typeof(url)}`)
     const resp = await http({url, responseType: 'stream'})
 
     /* we use pipeline so we can await for the write */
